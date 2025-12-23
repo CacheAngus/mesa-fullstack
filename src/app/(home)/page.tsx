@@ -2,18 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { Layout } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { Content, Header } from "antd/es/layout/layout";
+import axios from "axios";
 
 const OrganizationContext = createContext();
 export const useOrganization = () => useContext(OrganizationContext);
 
 export default function HomeNavPage({ children }) {
-    // const [menuItems, setMenuItems] = useState([]);
-    // const [userItems, setUserItems] = useState([]);
-    // setMenuItems([{ link: "/welcome" }]);
     const [organization, setOrganization] = useState<{
         primary_color: string;
         secondary_color: string;
@@ -25,11 +23,19 @@ export default function HomeNavPage({ children }) {
         name: "Jack In The Box",
         logo: "https://logos-world.net/wp-content/uploads/2022/08/Jack-in-the-Box-Logo.png",
     });
+    useEffect(() => {
+        const fetchOrganization = async () => {
+            const fetchedOrganization = await axios.get("/api/organization");
+            setOrganization(fetchedOrganization.data);
+        };
+        fetchOrganization();
+    }, []);
     const backgroundColor = organization.primary_color;
     const textColor = shouldTextBeBlack(backgroundColor)
         ? "#000000"
         : "#FFFFFF";
     const pathName = usePathname();
+    const isAdmin = false;
     return (
         <>
             <Layout>
@@ -84,77 +90,86 @@ export default function HomeNavPage({ children }) {
                     >
                         <div className="flex flex-col h-full justify-between text-xl ">
                             <div className="my-8">
-                                <div
-                                    className={
-                                        pathName === "/welcome"
-                                            ? "bg-gray-100 mb-2 py-2"
-                                            : "mb-2"
-                                    }
-                                >
-                                    <Link
-                                        className="pl-4 "
-                                        href="/welcome"
-                                    >
-                                        <span
-                                            style={{
-                                                color:
-                                                    pathName === "/welcome"
-                                                        ? backgroundColor
-                                                        : "black",
-                                            }}
+                                {isAdmin ? (
+                                    <>
+                                        {" "}
+                                        <div
+                                            className={
+                                                pathName === "/welcome"
+                                                    ? "bg-gray-100 mb-2 py-2"
+                                                    : "mb-2"
+                                            }
                                         >
-                                            Welcome
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div
-                                    className={
-                                        pathName.includes("/home")
-                                            ? "bg-gray-100 mb-2 py-2"
-                                            : "mb-2"
-                                    }
-                                >
-                                    <Link
-                                        className="pl-4"
-                                        href="/home"
-                                    >
-                                        <span
-                                            style={{
-                                                color: pathName.includes(
-                                                    "/home"
-                                                )
-                                                    ? backgroundColor
-                                                    : "black",
-                                            }}
+                                            <Link
+                                                className="pl-4 "
+                                                href="/welcome"
+                                            >
+                                                <span
+                                                    style={{
+                                                        color:
+                                                            pathName ===
+                                                            "/welcome"
+                                                                ? backgroundColor
+                                                                : "black",
+                                                    }}
+                                                >
+                                                    Welcome
+                                                </span>
+                                            </Link>
+                                        </div>
+                                        <div
+                                            className={
+                                                pathName.includes("/home")
+                                                    ? "bg-gray-100 mb-2 py-2"
+                                                    : "mb-2"
+                                            }
                                         >
-                                            Home{" "}
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div
-                                    className={
-                                        pathName.includes("/catalogs")
-                                            ? "bg-gray-100 mb-2 py-2"
-                                            : "mb-2"
-                                    }
-                                >
-                                    <Link
-                                        className="pl-4"
-                                        href="/catalogs"
-                                    >
-                                        <span
-                                            style={{
-                                                color: pathName.includes(
-                                                    "/catalogs"
-                                                )
-                                                    ? backgroundColor
-                                                    : "black",
-                                            }}
+                                            <Link
+                                                className="pl-4"
+                                                href="/home"
+                                            >
+                                                <span
+                                                    style={{
+                                                        color: pathName.includes(
+                                                            "/home"
+                                                        )
+                                                            ? backgroundColor
+                                                            : "black",
+                                                    }}
+                                                >
+                                                    Home{" "}
+                                                </span>
+                                            </Link>
+                                        </div>
+                                        <div
+                                            className={
+                                                pathName.includes("/catalogs")
+                                                    ? "bg-gray-100 mb-2 py-2"
+                                                    : "mb-2"
+                                            }
                                         >
-                                            Catalogs
-                                        </span>
-                                    </Link>
-                                </div>
+                                            <Link
+                                                className="pl-4"
+                                                href="/catalogs"
+                                            >
+                                                <span
+                                                    style={{
+                                                        color: pathName.includes(
+                                                            "/catalogs"
+                                                        )
+                                                            ? backgroundColor
+                                                            : "black",
+                                                    }}
+                                                >
+                                                    Catalogs
+                                                </span>
+                                            </Link>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <></>
+                                )}
+
                                 <div
                                     className={
                                         pathName.includes("/applications")
@@ -215,7 +230,7 @@ export default function HomeNavPage({ children }) {
                                 >
                                     <Link
                                         className="pl-4"
-                                        href="/welcome"
+                                        href="/account"
                                     >
                                         <span
                                             style={{

@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { useOrganization } from "../page";
+import React, { useEffect, useState } from "react";
 import {
     Button,
     Dropdown,
@@ -14,6 +13,9 @@ import {
 } from "antd";
 import { ArrowRightOutlined, PlusOutlined } from "@ant-design/icons";
 import Link from "next/link";
+import { Account } from "@/src/app/lib/Account_types";
+import axios from "axios";
+import type { Organization } from "@/src/app/lib/Organization_types";
 
 function getBase64(img, callback) {
     const reader = new FileReader();
@@ -34,38 +36,65 @@ function beforeUpload(file) {
 }
 
 export default function Organization() {
-    const { primary_color, secondary_color, name, logo } = useOrganization();
     const [formValues, setFormValues] = useState({
         first_name: "",
         last_name: "",
         email: "",
         permissions: [],
     });
-    const [organizationName, setName] = useState(name);
-    const [organizationPrimaryColor, setPrimaryColor] = useState(primary_color);
-    const [organizationSecondaryColor, setSecondaryColor] =
-        useState(secondary_color);
-    const [organizationLogo, setLogo] = useState(logo);
+    const [organization, setOrganization] = useState<Organization>();
+    useEffect(() => {
+        const fetchOrganization = async () => {
+            const fetchedOrganization = await axios.get("/api/organization");
+            setOrganization(fetchedOrganization.data);
+        };
+        fetchOrganization();
+    }, []);
+    const [organizationName, setName] = useState(organization?.name);
+    const [organizationPrimaryColor, setPrimaryColor] = useState(
+        organization?.primary_color
+    );
+    const [organizationSecondaryColor, setSecondaryColor] = useState(
+        organization?.secondary_color
+    );
+    const [organizationLogo, setLogo] = useState(organization?.logo);
     const handleChange = (info) => {
         if (info.file.status === "done") {
             // Get this url from response in real world.
-            getBase64(info.file.originFileObj, (imageUrl) => setLogo(imageUrl));
+            getBase64(info.file.originFileObj, (imageUrl: string) =>
+                setLogo(imageUrl)
+            );
         }
+    };
+    const handleUpdateOrganization = async () => {
+        try {
+            const organizationForm = {
+                name: organizationName,
+                primary_color: organizationPrimaryColor,
+                secondary_color: organizationSecondaryColor,
+                logo: organizationLogo,
+            };
+            const updatedOrganization = await axios.patch(
+                "/api/organization",
+                organizationForm
+            );
+            setOrganization(updatedOrganization.data);
+        } catch {}
     };
     const userColumns = [
         {
             title: "User",
-            dataIndex: "user",
-            key: "user",
-            sorter: (a, b) => a.user.localeCompare(b.user),
+            dataIndex: "email",
+            key: "email",
+            sorter: (a, b) => a.email.localeCompare(b.email),
         },
         {
             title: "Permissions",
             dataIndex: "permissions",
             key: "permissions",
-            render: (permission) => (
+            render: (permissions: string[]) => (
                 <div className="flex flex-col gap-4">
-                    {permission.map((perm) => (
+                    {permissions.map((perm) => (
                         <div>{perm.toUpperCase()}</div>
                     ))}
                 </div>
@@ -82,10 +111,10 @@ export default function Organization() {
             key: "menu",
         },
     ];
-    const handleMenuClick = (event) => {
-        console.log(event);
+    const handleMenuClick = (userId: string) => {
+        console.log(userId);
     };
-    const dropdownMenu = (user) => (
+    const dropdownMenu = (userId: string) => (
         <Dropdown
             placement="bottomLeft"
             menu={{
@@ -93,7 +122,7 @@ export default function Organization() {
                     {
                         label: "Delete user",
                         key: "1",
-                        onClick: () => handleMenuClick(user),
+                        onClick: () => handleMenuClick(userId),
                     },
                 ],
             }}
@@ -101,37 +130,51 @@ export default function Organization() {
             <Button type="text">...</Button>
         </Dropdown>
     );
-    let userData = [
-        {
-            key: "1",
-            user: "johnbrown@email.com",
-            permissions: ["Admin"],
-            date: "September 12, 2025",
-            menu: dropdownMenu("johnbrown@email.com"),
-        },
-        {
-            key: "2",
-            user: "whitney@email.com",
-            permissions: ["Catalogs", "Applications"],
-            date: "September 12, 2025",
-            menu: dropdownMenu("whitney@email.com"),
-        },
-        {
-            key: "3",
-            user: "cache@email.com",
-            permissions: ["Applications"],
-            date: "September 12, 2025",
-            menu: dropdownMenu("cache@email.com"),
-        },
-        {
-            key: "4",
-            user: "felix@email.com",
-            permissions: ["Catalogs"],
-            date: "September 12, 2025",
-            menu: dropdownMenu("felix@email.com"),
-        },
-    ];
-    const handleFormChange = (key, value) => {
+    const [userData, setUserData] = useState<Account[]>([]);
+    useEffect(() => {
+        const fetchAccounts = async () => {
+            const fetchedAccounts = await axios.get("/api/accounts");
+            setUserData(
+                fetchedAccounts.data.map((user: Account) => ({
+                    ...user,
+                    key: user._id,
+                    menu: dropdownMenu(user._id),
+                }))
+            );
+        };
+        fetchAccounts();
+    }, []);
+    // let userData = [
+    //     {
+    //         key: "1",
+    //         user: "johnbrown@email.com",
+    //         permissions: ["Admin"],
+    //         date: "September 12, 2025",
+    //         menu: dropdownMenu("johnbrown@email.com"),
+    //     },
+    //     {
+    //         key: "2",
+    //         user: "whitney@email.com",
+    //         permissions: ["Catalogs", "Applications"],
+    //         date: "September 12, 2025",
+    //         menu: dropdownMenu("whitney@email.com"),
+    //     },
+    //     {
+    //         key: "3",
+    //         user: "cache@email.com",
+    //         permissions: ["Applications"],
+    //         date: "September 12, 2025",
+    //         menu: dropdownMenu("cache@email.com"),
+    //     },
+    //     {
+    //         key: "4",
+    //         user: "felix@email.com",
+    //         permissions: ["Catalogs"],
+    //         date: "September 12, 2025",
+    //         menu: dropdownMenu("felix@email.com"),
+    //     },
+    // ];
+    const handleFormChange = (key: string, value: string) => {
         setFormValues((values) => {
             return { ...values, [key]: value };
         });
@@ -147,13 +190,23 @@ export default function Organization() {
         { title: "Applications", value: "applications", key: "applications" },
     ];
     const [userDataSource, setDataSource] = useState(userData);
+    useEffect(() => {
+        setDataSource(userData);
+    }, userData);
     const [searchValue, setSearchValue] = useState("");
-    const handleSearch = (value) => {
+    const handleSearch = (value: string) => {
         setSearchValue(value);
         if (!value.length) {
             return setDataSource(userData);
         }
-        setDataSource(userData.filter((user) => user.user.includes(value)));
+        setDataSource(
+            userData?.filter(
+                (user) =>
+                    user.first_name.includes(value) ||
+                    user.last_name.includes(value) ||
+                    user.email.includes(value)
+            )
+        );
     };
     const catalogsColumns = [
         {
@@ -202,7 +255,7 @@ export default function Organization() {
     ];
     const [catalogsDataSource, setCatalogsDataSource] = useState(catalogs);
     const [searchCatalogs, setSearchCatalogsValue] = useState("");
-    const handleCatalogSearch = (value) => {
+    const handleCatalogSearch = (value: string) => {
         setSearchCatalogsValue(value);
         if (!value.length) {
             return setCatalogsDataSource(catalogs);
@@ -215,24 +268,24 @@ export default function Organization() {
             )
         );
     };
-    const handleAddNewUser = () => {
-        userData = [
+    const handleAddNewUser = async () => {
+        const newUser = await axios.post("/api/accounts", formValues);
+        const newUserData = [
             ...userData,
             {
-                key: (userData.length + 1).toString(),
-                user: formValues.email,
-                permissions: formValues.permissions,
-                // date: new Date().toString(),
-                date: "Sept 4, 2025",
-                menu: dropdownMenu(formValues.email),
+                ...newUser.data,
+                key: newUser.data._id,
+                menu: dropdownMenu(newUser.data._id),
             },
         ];
-        setDataSource(userData);
+        setUserData(newUserData);
     };
     return (
         <>
             <div className="flex flex-col gap-8 py-9 mx-8">
-                <div className="text-5xl text-black font-semibold ">{name}</div>
+                <div className="text-5xl text-black font-semibold ">
+                    {organization?.name}
+                </div>
                 <div className="bg-white rounded-md shadow w-300">
                     <div className="text-2xl ml-4 mt-2">
                         Company information
@@ -349,16 +402,18 @@ export default function Organization() {
                         <Button
                             size="large"
                             disabled={
-                                primary_color === organizationPrimaryColor &&
-                                secondary_color ===
+                                organization?.primary_color ===
+                                    organizationPrimaryColor &&
+                                organization?.secondary_color ===
                                     organizationSecondaryColor &&
-                                name === organizationName &&
-                                organizationLogo === logo
+                                organization?.name === organizationName &&
+                                organization?.logo === organizationLogo
                             }
                             style={{
                                 background: organizationPrimaryColor,
                                 color: "white",
                             }}
+                            onClick={handleUpdateOrganization}
                         >
                             Save
                         </Button>

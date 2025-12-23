@@ -1,41 +1,59 @@
 "use client";
 
 import { Button } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useOrganization } from "../../page";
+import { useSearchParams, useParams } from "next/navigation";
+import CreditApplication from "../(applications)/(credit)/CreditApplication";
+import type { Application } from "@/src/app/lib/Application_types";
+import axios from "axios";
+import { Account } from "@/src/app/lib/Account_types";
 
 export default function Application() {
-    // todo getquery if it is editing
     const { primary_color, secondary_color, name, logo } = useOrganization();
-
-    const [isEdit, setIsEdit] = useState(false);
-    const [application, setApplication] = useState({ name: "Application 1" });
+    const searchParams = useSearchParams();
+    const applicationId = useParams().applicationId;
+    const [application, setApplication] = useState<Application>();
+    useEffect(() => {
+        const fetchApplication = async () => {
+            const fetchedApplication = await axios.get(
+                `api/application/${applicationId}`
+            );
+            setApplication(fetchedApplication.data);
+        };
+        fetchApplication();
+    }, []);
+    const [userAccount, setUserAccount] = useState<Account>();
+    useEffect(() => {
+        const fetchAccount = async () => {
+            const res = await fetch("http://localhost:3000/api/accounts");
+            const fetchedAccount = await res.json();
+            setUserAccount(fetchedAccount);
+        };
+        fetchAccount();
+    }, []);
+    const [isEdit, setIsEdit] = useState(Boolean(searchParams.get("isEdit")));
     const handleEdit = () => {
         setIsEdit(true);
     };
-    // todo formDisplays get type display that form
-    let applicationDisplay;
-    let editDisplay;
-
-    switch (application.type) {
-        case "type_1": {
-            applicationDisplay = <></>;
-            editDisplay = (
+    let display;
+    const type = searchParams.get("type");
+    switch (type) {
+        case "credit": {
+            display = (
                 <>
-                    <div className="flex flex-col gap">
-                        <div className="bg-white rounded-md shadow w-300"></div>
-                        <div className="bg-white rounded-md shadow w-300"></div>
-                    </div>
+                    <CreditApplication
+                        isEdit={isEdit}
+                        application={application}
+                        color={primary_color}
+                        userAccount={userAccount}
+                    />
                 </>
             );
+            break;
         }
         default: {
-            applicationDisplay = (
-                <>
-                    <div>Information</div>
-                </>
-            );
-            editDisplay = (
+            display = (
                 <>
                     <div className="flex flex-col gap-4">
                         <div className="bg-white rounded-md shadow w-300">
@@ -57,11 +75,11 @@ export default function Application() {
         <>
             <div className="flex flex-col gap-8 py-9 mx-8">
                 <div className="text-5xl text-black font-semibold ">
-                    {application.name}
+                    {application?.name}
                 </div>
                 {isEdit ? (
                     <>
-                        <div>{editDisplay}</div>
+                        <div>{display}</div>
                     </>
                 ) : (
                     <>
@@ -78,7 +96,7 @@ export default function Application() {
                                     Edit
                                 </Button>
                             </div>
-                            <div className="m-4">{applicationDisplay}</div>
+                            <div className="m-4">{display}</div>
                         </div>
                     </>
                 )}

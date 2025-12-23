@@ -1,16 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useOrganization } from "../page";
-import { Dropdown, Button, Input, Table, Tabs } from "antd";
+import { Dropdown, Button, Input, Table, Tabs, Modal, Select } from "antd";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Application } from "@/src/app/lib/Application_types";
+import axios from "axios";
+
+type DisplayApplications = Application & { menu };
 
 export default function Applications() {
     const { primary_color, secondary_color, name, logo } = useOrganization();
-    const handleMenuClick = (event) => {
-        console.log(event);
+    const router = useRouter();
+    const handleMenuClick = (applicationId: string) => {
+        console.log(applicationId);
     };
-    const dropdownMenu = (applicationId) => (
+    const dropdownMenu = (applicationId: string) => (
         <Dropdown
             placement="bottomLeft"
             menu={{
@@ -33,9 +39,9 @@ export default function Applications() {
     );
     const applicationColumns = [
         {
-            title: "Title",
-            dataIndex: "title",
-            key: "title",
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
             render: (title: string) => (
                 <Link
                     style={{ color: primary_color }}
@@ -49,161 +55,96 @@ export default function Applications() {
             title: "Status",
             dataIndex: "status",
             key: "status",
-            render: (status) => {
+            render: (status: string) => {
                 if ("active" === status) {
                     return <div>Active</div>;
                 }
                 if ("draft" === status) {
                     return <div>Draft</div>;
                 }
-                if ("completed" === status) {
+                if ("complete" === status) {
                     return <div>Completed</div>;
                 }
             },
         },
         {
-            title: "Vendor",
-            dataIndex: "vendor",
-            key: "vendor",
+            title: "Type",
+            dataIndex: "type",
+            key: "type",
         },
         {
             title: "Created by",
-            dataIndex: "author",
-            key: "author",
+            dataIndex: "created_by",
+            key: "created_by",
         },
         {
             title: "Date added",
-            dataIndex: "date",
-            key: "date",
+            dataIndex: "created_at",
+            key: "created_at",
         },
-
         {
             title: "",
             dataIndex: "menu",
             key: "menu",
         },
     ];
-    const activeApplications = [
-        {
-            key: "1",
-            id: "3",
-            title: "Application 1",
-            vendor: "Company",
-            status: "active",
-            author: "John Brown",
-            date: "September 4th, 2025",
-            menu: dropdownMenu("1"),
-        },
-        {
-            key: "2",
-            id: "4",
-            title: "Application 2",
-            vendor: "Company Teo",
-            status: "active",
-            author: "John Brown",
-            date: "September 4th, 2025",
-            menu: dropdownMenu("2"),
-        },
-
-        {
-            key: "3",
-            id: "5",
-            title: "Application 3",
-            vendor: "Company Teo",
-            status: "active",
-            author: "John Brown",
-            date: "September 4th, 2025",
-            menu: dropdownMenu("2"),
-        },
-    ];
-    const draftApplications = [
-        {
-            key: "1",
-            id: "3",
-            title: "Application 1",
-            vendor: "Company",
-            status: "draft",
-            author: "John Brown",
-            date: "September 4th, 2025",
-            menu: dropdownMenu("1"),
-        },
-        {
-            key: "2",
-            id: "4",
-            title: "Application 2",
-            vendor: "Company Teo",
-            status: "draft",
-            author: "John Brown",
-            date: "September 4th, 2025",
-            menu: dropdownMenu("2"),
-        },
-
-        {
-            key: "3",
-            id: "5",
-            title: "Application 3",
-            vendor: "Company Teo",
-            status: "draft",
-            author: "John Brown",
-            date: "September 4th, 2025",
-            menu: dropdownMenu("2"),
-        },
-    ];
-    const completedApplications = [
-        {
-            key: "1",
-            id: "3",
-            title: "Application 1",
-            vendor: "Company",
-            status: "completed",
-            author: "John Brown",
-            date: "September 4th, 2025",
-            menu: dropdownMenu("1"),
-        },
-        {
-            key: "2",
-            id: "4",
-            title: "Application 2",
-            vendor: "Company Teo",
-            status: "completed",
-            author: "John Brown",
-            date: "September 4th, 2025",
-            menu: dropdownMenu("2"),
-        },
-
-        {
-            key: "3",
-            id: "5",
-            title: "Application 3",
-            vendor: "Company Teo",
-            status: "completed",
-            author: "John Brown",
-            date: "September 4th, 2025",
-            menu: dropdownMenu("2"),
-        },
-    ];
+    const [applications, setApplications] = useState<DisplayApplications[]>();
+    useEffect(() => {
+        const fetchApplications = async () => {
+            const fetchedApplications = await axios.get("/api/applications");
+            setApplications(
+                fetchedApplications.data.map((application: Application) => ({
+                    ...application,
+                    menu: dropdownMenu(application._id),
+                }))
+            );
+        };
+        fetchApplications();
+    }, []);
+    const [activeApplications, setActiveApplications] =
+        useState<DisplayApplications[]>();
+    useEffect(() => {
+        setActiveApplications(
+            applications?.filter(
+                (application) => "active" === application.status
+            )
+        );
+    }, applications);
+    const [draftApplications, setDraftApplications] =
+        useState<DisplayApplications[]>();
+    useEffect(() => {
+        setDraftApplications(
+            applications?.filter(
+                (application) => "draft" === application.status
+            )
+        );
+    }, applications);
+    const [completedApplications, setCompletedApplications] =
+        useState<DisplayApplications[]>();
+    useEffect(() => {
+        setCompletedApplications(
+            applications?.filter(
+                (application) => "complete" === application.status
+            )
+        );
+    }, applications);
     const [activeApplicationsDataSource, setActiveApplicationsDataSource] =
         useState(activeApplications);
+    useEffect(() => {
+        setActiveApplicationsDataSource(activeApplications);
+    }, activeApplications);
     const [draftApplicationsDataSource, setDraftApplicationsDataSource] =
         useState(draftApplications);
+    useEffect(() => {
+        setDraftApplicationsDataSource(draftApplications);
+    }, draftApplications);
     const [
         completedApplicationsDataSource,
         setCompletedApplicationsDataSource,
     ] = useState(completedApplications);
-    // const [searchApplications, setSearchApplicationsValue] = useState("");
-    // const handleApplicationSearch = (value) => {
-    //     setSearchApplicationsValue(value);
-    //     if (!value.length) {
-    //         return setApplicationsDataSource(applications);
-    //     }
-    //     setApplicationsDataSource(
-    //         applications.filter(
-    //             (application) =>
-    //                 application.title.includes(value) ||
-    //                 application.vendor.includes(value)
-    //         )
-    //     );
-    // };
+    useEffect(() => {
+        setCompletedApplicationsDataSource(completedApplications);
+    }, completedApplications);
     const table = (dataSource) => (
         <Table
             columns={applicationColumns}
@@ -231,7 +172,29 @@ export default function Applications() {
             children: table(completedApplicationsDataSource),
         },
     ];
-    const handleAddNew = () => {};
+    const [showModal, setShowModal] = useState(false);
+    const [applicationInfo, setApplicationInfo] = useState<{
+        id?: string;
+        name?: string;
+        type?: string;
+    }>({});
+    const handleAddNew = () => {
+        setShowModal(true);
+    };
+    const handleCancel = () => {
+        setShowModal(false);
+        setApplicationInfo({});
+    };
+    const handleOk = async () => {
+        setApplicationInfo({ ...applicationInfo });
+        const newApplication = await axios.post(
+            "api/applications",
+            applicationInfo
+        );
+        router.push(
+            `/applications/${newApplication.data._id}?isEdit=true&type=${applicationInfo.type}`
+        );
+    };
     return (
         <>
             <div className="flex flex-col gap-8 py-9 mx-8">
@@ -240,7 +203,7 @@ export default function Applications() {
                 </div>
                 <div className="bg-white rounded-md shadow w-300">
                     <div className="flex flex-row justify-between items-center">
-                        <div className="text-lg m-4">All catalogs</div>
+                        <div className="text-lg m-4">All applications</div>
                         <Button
                             className="mr-4"
                             style={{
@@ -252,15 +215,58 @@ export default function Applications() {
                             Add new application
                         </Button>
                     </div>
-                    {/* <div className="m-4 flex flex-row justify-between items-center gap-4">
-                        <Input
-                            placeholder="Search applications"
-                            value={searchApplications}
+                    <Modal
+                        title="New credit application"
+                        open={showModal}
+                        onCancel={handleCancel}
+                        footer={[
+                            <Button
+                                type="text"
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </Button>,
+                            <Button
+                                style={{
+                                    background: primary_color,
+                                    color: "white",
+                                }}
+                                onClick={handleOk}
+                            >
+                                Start
+                            </Button>,
+                        ]}
+                    >
+                        <div className="mb-2">Select the application type</div>
+                        <Select
+                            placeholder="Application type"
                             onChange={(e) =>
-                                handleApplicationSearch(e.target.value)
+                                setApplicationInfo({
+                                    ...applicationInfo,
+                                    type: e,
+                                })
                             }
-                        />
-                    </div> */}
+                            options={[
+                                {
+                                    value: "credit",
+                                    label: "Credit application",
+                                },
+                            ]}
+                        ></Select>
+                        <div className="my-2">Add new application name</div>
+                        <Input
+                            style={{ width: "70%" }}
+                            variant="underlined"
+                            placeholder="New application name"
+                            value={applicationInfo.name}
+                            onChange={(e) =>
+                                setApplicationInfo({
+                                    ...applicationInfo,
+                                    name: e.target.value,
+                                })
+                            }
+                        ></Input>
+                    </Modal>
                     <div className="m-4">
                         <Tabs
                             defaultActiveKey="1"

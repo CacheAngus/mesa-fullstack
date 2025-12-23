@@ -2,15 +2,28 @@
 
 import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { useOrganization } from "../page";
-import React, { useState } from "react";
-import { Button } from "antd";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import axios from "axios";
+import { Application } from "../../lib/Application_types";
 
 export default function Home() {
     const { primary_color, secondary_color, name, logo } = useOrganization();
     const [applications, setApplications] = useState({ open: 0, completed: 0 });
+    useEffect(() => {
+        const fetchApplications = async () => {
+            const fetchedApplications = await axios.get("/api/applications");
+            const open = fetchedApplications.data.filter(
+                (application: Application) => "active" === application.status
+            );
+            const completed = fetchedApplications.data.filter(
+                (application: Application) => "complete" === application.status
+            );
+            setApplications({ open, completed });
+        };
+        fetchApplications();
+    }, []);
     const [catalogs, setCatalogs] = useState(0);
-
     return (
         <>
             <div className="flex flex-col gap-8 py-9 mx-8">
