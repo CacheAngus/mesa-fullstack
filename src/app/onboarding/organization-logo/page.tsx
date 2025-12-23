@@ -88,7 +88,7 @@ export default function OrganizationLogo() {
                         type="text"
                         className=" text-sm"
                         onClick={handleClick}
-                        disabled={!logo}
+                        // disabled={!logo}
                     >
                         Next
                     </Button>

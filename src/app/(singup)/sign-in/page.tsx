@@ -8,7 +8,7 @@ import React from "react";
 export default function Signin() {
     const route = useRouter();
     const handleOnClick = () => {
-        route.push("/onboarding/organization-name");
+        route.push("/onboarding/account");
     };
     return (
         <>
