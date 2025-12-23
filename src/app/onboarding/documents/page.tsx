@@ -1,11 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Button, Form, Input, InputNumber, Upload, UploadProps } from "antd";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button, Upload } from "antd";
 import React, { useState } from "react";
 import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 
 export default function DocumentsOnboarding() {
+    const account = useSearchParams().get("account");
     const [documentList, setDocumentList] = useState<{
         franchise_info?: { name: string };
         account_info?: { name: string };

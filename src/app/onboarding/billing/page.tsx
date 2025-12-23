@@ -1,12 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Button, Form, Input, InputNumber, Select, Space } from "antd";
-import React, { createContext, useContext, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button, Form, Input, Select, Space } from "antd";
+import React, { useState } from "react";
+import axios from "axios";
 const { Option } = Select;
 
 export default function BillingOnboarding() {
-    // todo set as global var
+    const account = useSearchParams().get("account");
     const [billing, setBilling] = useState<{
         first_name?: string;
         last_name?: string;
@@ -22,12 +23,9 @@ export default function BillingOnboarding() {
     };
     const [extension, setExtension] = useState("can");
     const router = useRouter();
-
-    // set state variable for account
-    const handleClick = () => {
-        // TODO save any updated organization name
-        // then navigate to the next
-        router.push("/onboarding/franchise");
+    const handleClick = async () => {
+        await axios.patch(`/api/account/${account}`, { billings: [billing] });
+        router.push(`/onboarding/franchise?account=${account}`);
     };
     return (
         <>

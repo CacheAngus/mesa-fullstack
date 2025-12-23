@@ -1,10 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Button, Form, Input, InputNumber, Select, Space } from "antd";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button, Form, Input, InputNumber, Select } from "antd";
 import React, { useState } from "react";
+import axios from "axios";
 
 export default function CreditInfoOnboarding() {
+    const account = useSearchParams().get("account");
     const [creditInfo, setCreditInfo] = useState<{
         name?: string;
         type?: string;
@@ -17,14 +19,14 @@ export default function CreditInfoOnboarding() {
         });
     };
     const router = useRouter();
-
-    const handleClick = () => {
-        // TODO save any updated organization name
-        // then navigate to the next
-        router.push("/onboarding/documents");
+    const handleClick = async () => {
+        await axios.patch(`/api/account/${account}`, {
+            entities: [creditInfo],
+        });
+        router.push(`/onboarding/documents?account=${account}`);
     };
     const entityOptions = [{ value: "value1", label: "Type 1" }];
-    const handleSelectingEntityType = (type) => {
+    const handleSelectingEntityType = (type: string) => {
         setCreditInfo((entities) => {
             return { ...entities, type };
         });

@@ -1,15 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Button, Form, Input, InputNumber, Select, Space } from "antd";
-import React, { createContext, useContext, useState } from "react";
-const { Option } = Select;
-
-const AccountContext = createContext();
-export const useAccount = () => useContext(AccountContext);
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button, Form, Input } from "antd";
+import React, { useState } from "react";
+import axios from "axios";
 
 export default function AccountOnboarding() {
-    // todo set as global var
+    const account = useSearchParams().get("account");
     const [franchises, setFranchise] = useState<
         {
             name?: string;
@@ -28,12 +25,11 @@ export default function AccountOnboarding() {
         });
     };
     const router = useRouter();
-
-    // set state variable for account
-    const handleClick = () => {
-        // TODO save any updated organization name
-        // then navigate to the next
-        router.push("/onboarding/credit-info");
+    const handleClick = async () => {
+        await axios.patch(`/api/account/${account}`, {
+            stores: franchises,
+        });
+        router.push(`/onboarding/credit-info?account=${account}`);
     };
     return (
         <>

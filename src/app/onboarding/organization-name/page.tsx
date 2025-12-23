@@ -3,14 +3,14 @@
 import { useRouter } from "next/navigation";
 import { Button, Input } from "antd";
 import React, { useState } from "react";
+import axios from "axios";
 
 export default function OrganizationName() {
     const [name, setName] = useState("");
     const router = useRouter();
 
-    const handleClick = () => {
-        // TODO save any updated organization name
-        // then navigate to the next
+    const handleClick = async () => {
+        await axios.patch("/api/organization", { name });
         router.push("/onboarding/organization-color");
     };
     const handleInputChange = (e: any) => {

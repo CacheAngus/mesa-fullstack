@@ -3,14 +3,14 @@
 import { useRouter } from "next/navigation";
 import { Button, Input, Space } from "antd";
 import { useState } from "react";
+import axios from "axios";
 
 export default function OrganizationColor() {
     const [color, setColor] = useState("#E31635");
     const router = useRouter();
 
-    const handleClick = () => {
-        // TODO save any updated organization colors
-        // then navigate to the next
+    const handleClick = async () => {
+        await axios.patch("/api/organization", { primary_color: color });
         router.push("/onboarding/organization-color-secondary");
     };
     const handleBackClick = () => {
