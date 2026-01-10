@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Form, Input, Select, Space } from "antd";
+import { Button } from "antd";
 import React, { useState } from "react";
 import axios from "axios";
-const { Option } = Select;
+import { ContactForm } from "@/src/design-components/forms/contact-form";
+import { Billing } from "../../lib/Types";
 
 export default function BillingOnboarding() {
     const account = useSearchParams().get("account");
@@ -16,12 +17,9 @@ export default function BillingOnboarding() {
         title?: string;
         address?: string;
     }>({});
-    const handleFormChange = (key: string, value: string | number) => {
-        setBilling((values) => {
-            return { ...values, [key]: value };
-        });
+    const handleFormChange = (form: Billing) => {
+        setBilling(form);
     };
-    const [extension, setExtension] = useState("can");
     const router = useRouter();
     const handleClick = async () => {
         await axios.patch(`/api/account/${account}`, { billings: [billing] });
@@ -40,122 +38,11 @@ export default function BillingOnboarding() {
                     You'll have the opportunity to add more billing contacts
                     later
                 </div>
-                <div className="px-8">
-                    <Form layout="vertical">
-                        <div className="flex flex-row gap-8">
-                            <Form.Item
-                                required
-                                label="First name"
-                            >
-                                <Input
-                                    placeholder="First name"
-                                    variant="underlined"
-                                    value={billing.first_name}
-                                    onChange={(e) =>
-                                        handleFormChange(
-                                            "first_name",
-                                            e.target.value
-                                        )
-                                    }
-                                ></Input>
-                            </Form.Item>
-                            <Form.Item
-                                required
-                                label="Last name"
-                            >
-                                <Input
-                                    placeholder="Last name"
-                                    variant="underlined"
-                                    value={billing.last_name}
-                                    onChange={(e) =>
-                                        handleFormChange(
-                                            "last_name",
-                                            e.target.value
-                                        )
-                                    }
-                                ></Input>
-                            </Form.Item>
-                        </div>
-                        <div className="flex flex-row gap-8 mt-4">
-                            <Form.Item
-                                required
-                                label="Title"
-                            >
-                                <Input
-                                    placeholder="Title"
-                                    variant="underlined"
-                                    value={billing.title}
-                                    onChange={(e) => {
-                                        if (e) {
-                                            handleFormChange(
-                                                "title",
-                                                e.target.value
-                                            );
-                                        }
-                                    }}
-                                ></Input>
-                            </Form.Item>
-                            <Form.Item
-                                required
-                                label="Business email"
-                            >
-                                <Input
-                                    placeholder="cache@mesa.com"
-                                    variant="underlined"
-                                    value={billing.email}
-                                    onChange={(e) =>
-                                        handleFormChange(
-                                            "email",
-                                            e.target.value
-                                        )
-                                    }
-                                ></Input>
-                            </Form.Item>
-                        </div>
-                        <Form.Item
-                            required
-                            label="Business phone"
-                        >
-                            <Space direction="vertical">
-                                <Input
-                                    addonBefore={
-                                        <Select
-                                            style={{ width: 100 }}
-                                            value={extension}
-                                            onSelect={(e) => setExtension(e)}
-                                        >
-                                            <Option value="us">US +1</Option>
-                                            <Option value="can">CAN +1</Option>
-                                            <Option value="uk">UK +44</Option>
-                                        </Select>
-                                    }
-                                    placeholder="Phone"
-                                    variant="underlined"
-                                    value={billing.phone}
-                                    onChange={(e) => {
-                                        if (e) {
-                                            handleFormChange(
-                                                "phone",
-                                                e.target.value
-                                            );
-                                        }
-                                    }}
-                                ></Input>
-                            </Space>
-                        </Form.Item>
-                        <Form.Item
-                            required
-                            label="Address"
-                        >
-                            <Input
-                                variant="underlined"
-                                value={billing.address}
-                                onChange={(e) =>
-                                    handleFormChange("address", e.target.value)
-                                }
-                            ></Input>
-                        </Form.Item>
-                    </Form>
+                <div className="px-4">
+                    <ContactForm
+                        formSubmit={handleFormChange}
+                        title={true}
+                    />
                 </div>
                 <div className="flex flex-row justify-between w-100 mt-8">
                     <div></div>

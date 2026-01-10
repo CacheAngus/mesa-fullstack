@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Form, Input } from "antd";
+import { Form, Input } from "antd";
 import React, { useState } from "react";
 import axios from "axios";
+import { Plus } from "@untitledui/icons";
+import { Button } from "@/src/components/base/buttons/button";
 
 export default function AccountOnboarding() {
     const account = useSearchParams().get("account");
@@ -190,8 +192,9 @@ export default function AccountOnboarding() {
                                     ];
                                 })
                             }
+                            iconLeading={Plus}
                         >
-                            + Add store
+                            Add store
                         </Button>
                     </div>
                 </div>

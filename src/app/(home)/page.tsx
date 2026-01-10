@@ -1,12 +1,20 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Layout } from "antd";
-import Sider from "antd/es/layout/Sider";
-import { Content, Header } from "antd/es/layout/layout";
+import { Content } from "antd/es/layout/layout";
 import axios from "axios";
+import { SidebarNavigationSimple } from "@/src/components/application/app-navigation/sidebar-navigation/sidebar-simple";
+import {
+    BarChartSquare02,
+    CheckDone01,
+    Folder,
+    HomeLine,
+    Settings01,
+} from "@untitledui/icons";
+import { NavItemType } from "@/src/components/application/app-navigation/config";
+import { HeaderNavigationBase } from "@/src/components/application/app-navigation/header-navigation";
+import { BaseAccount } from "../lib/Account_types";
 
 const OrganizationContext = createContext();
 export const useOrganization = () => useContext(OrganizationContext);
@@ -18,250 +26,94 @@ export default function HomeNavPage({ children }) {
         name: string;
         logo: string;
     }>({
-        primary_color: "#E31635",
-        secondary_color: "#B71A2E",
-        name: "Jack In The Box",
-        logo: "https://logos-world.net/wp-content/uploads/2022/08/Jack-in-the-Box-Logo.png",
+        primary_color: "#75732C",
+        secondary_color: "#582F2B",
+        name: "Mesa Solutions",
+        logo: "https://mesaplatform.sharepoint.com/:i:/s/MesaCorporateDocuments/IQDefSxGPTVuQoyajO28HwgTAYvunJlpokaPkyGtcAVqsEY?e=8CEkNY",
     });
-    useEffect(() => {
-        const fetchOrganization = async () => {
-            const fetchedOrganization = await axios.get("/api/organization");
-            setOrganization(fetchedOrganization.data);
-        };
-        fetchOrganization();
-    }, []);
+    // useEffect(() => {
+    //     const fetchOrganization = async () => {
+    //         const fetchedOrganization = await axios.get("/api/organization");
+    //         setOrganization(fetchedOrganization.data);
+    //     };
+    //     fetchOrganization();
+    // }, []);
+    // todo get user
+    const [user, setUser] = useState<BaseAccount>({
+        first_name: "Cache",
+        last_name: "Angus",
+        email: "cache@mesa.com",
+        phone: 1,
+        address: "Montreal",
+        type: "admin",
+        title: "Ms.",
+        created_at: new Date().toISOString(),
+    });
     const backgroundColor = organization.primary_color;
     const textColor = shouldTextBeBlack(backgroundColor)
         ? "#000000"
         : "#FFFFFF";
-    const pathName = usePathname();
     const isAdmin = false;
+    const navItems: NavItemType[] = [
+        {
+            label: "Welcome",
+            href: "/welcome",
+            icon: CheckDone01,
+        },
+        {
+            label: "Home",
+            href: "/home",
+            icon: HomeLine,
+        },
+        {
+            label: "Applications",
+            href: "/applications",
+            icon: BarChartSquare02,
+        },
+        {
+            label: "Catalogs",
+            href: "/catalogs",
+            icon: Folder,
+        },
+    ];
+    const [activeUrl, setActiveUrl] = useState(usePathname());
+    const pathname = usePathname();
+    useEffect(() => {
+        setActiveUrl(pathname);
+    }, [pathname]);
     return (
         <>
-            <Layout>
-                <Header
-                    className="shadow"
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        zIndex: 3,
-                        width: "100%",
-                        background: backgroundColor,
-                        fontFamily: "cousine",
-                    }}
-                >
-                    <div
-                        className="flex flex-row justify-between items-center pt-4"
-                        style={{ background: backgroundColor }}
-                    >
-                        <div
-                            className=" text-2xl font-semibold"
-                            style={{ color: textColor }}
-                        >
-                            MESA
-                        </div>
-                        <div className=" flex flex-row gap-4 items-center">
-                            <div
-                                className="text-xl"
-                                style={{ color: textColor }}
-                            >
-                                {organization.name}
-                            </div>
-                            <img
-                                style={{ height: 24, width: 36 }}
-                                src={
-                                    organization.logo ||
-                                    "https://th.bing.com/th/id/R.f826b7a42b598f66524973365869439c?rik=%2fXV55qy%2fU7EmNw&riu=http%3a%2f%2fwww.digital-images.net%2fImages%2fSW_Indian_Sites%2fMonumentValley%2fMesas_Buttes%2fMonument_Valley_Sentinel_Mesa_Sunrise_X9921.jpg&ehk=n1xd3UEr0UKKfItFgKtTLjlQzQM3SBuRgixQ3%2fT9tVA%3d&risl=&pid=ImgRaw&r=0"
-                                }
-                            />
-                        </div>
-                    </div>
-                </Header>
-                <Layout>
-                    <Sider
-                        className="h-screen"
-                        style={{
-                            background: "white",
-                            position: "fixed",
-                            top: 64,
-                            bottom: 0,
-                            width: "300px",
-                        }}
-                    >
-                        <div className="flex flex-col h-full justify-between text-xl ">
-                            <div className="my-8">
-                                {isAdmin ? (
-                                    <>
-                                        {" "}
-                                        <div
-                                            className={
-                                                pathName === "/welcome"
-                                                    ? "bg-gray-100 mb-2 py-2"
-                                                    : "mb-2"
-                                            }
-                                        >
-                                            <Link
-                                                className="pl-4 "
-                                                href="/welcome"
-                                            >
-                                                <span
-                                                    style={{
-                                                        color:
-                                                            pathName ===
-                                                            "/welcome"
-                                                                ? backgroundColor
-                                                                : "black",
-                                                    }}
-                                                >
-                                                    Welcome
-                                                </span>
-                                            </Link>
-                                        </div>
-                                        <div
-                                            className={
-                                                pathName.includes("/home")
-                                                    ? "bg-gray-100 mb-2 py-2"
-                                                    : "mb-2"
-                                            }
-                                        >
-                                            <Link
-                                                className="pl-4"
-                                                href="/home"
-                                            >
-                                                <span
-                                                    style={{
-                                                        color: pathName.includes(
-                                                            "/home"
-                                                        )
-                                                            ? backgroundColor
-                                                            : "black",
-                                                    }}
-                                                >
-                                                    Home{" "}
-                                                </span>
-                                            </Link>
-                                        </div>
-                                        <div
-                                            className={
-                                                pathName.includes("/catalogs")
-                                                    ? "bg-gray-100 mb-2 py-2"
-                                                    : "mb-2"
-                                            }
-                                        >
-                                            <Link
-                                                className="pl-4"
-                                                href="/catalogs"
-                                            >
-                                                <span
-                                                    style={{
-                                                        color: pathName.includes(
-                                                            "/catalogs"
-                                                        )
-                                                            ? backgroundColor
-                                                            : "black",
-                                                    }}
-                                                >
-                                                    Catalogs
-                                                </span>
-                                            </Link>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <></>
-                                )}
+            <HeaderNavigationBase
+                items={[]}
+                name={organization.name}
+                color={textColor}
+                hideBorder={true}
+                logo={""}
+            />
 
-                                <div
-                                    className={
-                                        pathName.includes("/applications")
-                                            ? "bg-gray-100 mb-2 py-2"
-                                            : "mb-2"
-                                    }
-                                >
-                                    <Link
-                                        className="pl-4"
-                                        href="/applications"
-                                    >
-                                        <span
-                                            style={{
-                                                color: pathName.includes(
-                                                    "/applications"
-                                                )
-                                                    ? backgroundColor
-                                                    : "black",
-                                            }}
-                                        >
-                                            {" "}
-                                            Applications{" "}
-                                        </span>
-                                    </Link>
-                                </div>
-                            </div>
-                            <div className="mb-24">
-                                <div
-                                    className={
-                                        pathName === "/organization"
-                                            ? "bg-gray-100 mb-2 py-2"
-                                            : "mb-2"
-                                    }
-                                >
-                                    <Link
-                                        className="pl-4"
-                                        href="/organization"
-                                    >
-                                        <span
-                                            style={{
-                                                color:
-                                                    pathName === "/organization"
-                                                        ? backgroundColor
-                                                        : "black",
-                                            }}
-                                        >
-                                            {" "}
-                                            Organization{" "}
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div
-                                    className={
-                                        pathName === "/account"
-                                            ? "bg-gray-100 mb-2 py-2"
-                                            : "mb-2"
-                                    }
-                                >
-                                    <Link
-                                        className="pl-4"
-                                        href="/account"
-                                    >
-                                        <span
-                                            style={{
-                                                color:
-                                                    pathName === "/account"
-                                                        ? backgroundColor
-                                                        : "black",
-                                            }}
-                                        >
-                                            {" "}
-                                            Account
-                                        </span>
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    </Sider>
-                    <OrganizationContext.Provider
-                        value={{
-                            primary_color: organization.primary_color,
-                            secondary_color: organization.secondary_color,
-                            name: organization.name,
-                            logo: organization.logo,
-                        }}
-                    >
-                        <Content className="pl-8 mt-16 ml-47">
-                            {children}
-                        </Content>
-                    </OrganizationContext.Provider>
-                </Layout>
-            </Layout>
+            <SidebarNavigationSimple
+                items={navItems}
+                footerItems={[
+                    {
+                        label: "Organization",
+                        href: "/organization",
+                        icon: Settings01,
+                    },
+                ]}
+                activeUrl={activeUrl}
+                user={user}
+                className="mt-16 pb-16"
+            />
+            <OrganizationContext.Provider
+                value={{
+                    primary_color: organization.primary_color,
+                    secondary_color: organization.secondary_color,
+                    name: organization.name,
+                    logo: organization.logo,
+                }}
+            >
+                <Content className="ml-72 pt-16">{children}</Content>
+            </OrganizationContext.Provider>
         </>
     );
 }

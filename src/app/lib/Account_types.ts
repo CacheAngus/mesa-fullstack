@@ -11,14 +11,14 @@ export type BaseAccount = {
     franchise_name?: string;
     type: string;
     sso_information?: { user_id: string };
-    notifications: {
+    notifications?: {
         catalogs: boolean;
         applications: boolean;
         organization: boolean;
         support: boolean;
     };
     created_at: string;
-    permissions: { applications: boolean; catalogs: boolean };
+    permissions?: { applications: boolean; catalogs: boolean };
     title: string;
 };
 
