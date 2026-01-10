@@ -3,8 +3,8 @@
 import { Account } from "@/src/app/lib/Account_types";
 import { Billing } from "@/src/app/lib/Types";
 import { DeleteOutlined } from "@ant-design/icons";
+import { Plus } from "@untitledui/icons";
 import {
-    Button,
     Form,
     Input,
     InputNumber,
@@ -12,6 +12,7 @@ import {
     RadioChangeEvent,
     Select,
 } from "antd";
+import { Button } from "@/src/components/base/buttons/button";
 import FormItem from "antd/es/form/FormItem";
 import React, { useState } from "react";
 
@@ -209,8 +210,9 @@ export default function BillingForm({
                 <Button
                     style={{ background: color, color: "white" }}
                     onClick={handleAddAnotherBillingContact}
+                    iconLeading={Plus}
                 >
-                    + Add billing contact
+                    Add billing contact
                 </Button>
             </div>
         </>

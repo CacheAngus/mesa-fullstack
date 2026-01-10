@@ -1,15 +1,6 @@
 "use client";
 
-import {
-    Button,
-    Form,
-    Input,
-    InputNumber,
-    Radio,
-    RadioChangeEvent,
-    Select,
-} from "antd";
-import FormItem from "antd/es/form/FormItem";
+import { Button, Radio, RadioChangeEvent } from "antd";
 import React, { useState } from "react";
 import BillingForm from "../(form components)/Billing";
 import RestaurantForm from "../(form components)/Restaurant";
@@ -19,8 +10,7 @@ import { Account, BaseAccount } from "@/src/app/lib/Account_types";
 import axios from "axios";
 import { Entity, Signatory, Store } from "@/src/app/lib/Types";
 import { Application } from "@/src/app/lib/Application_types";
-
-const { Option } = Select;
+import { ContactForm } from "@/src/design-components/forms/contact-form";
 
 export default function CreditApplication({
     application,
@@ -34,12 +24,9 @@ export default function CreditApplication({
     color: string;
 }) {
     const [account, setAccount] = useState<Account>({});
-    function handleAccountChange(
-        key: string,
-        value: string | number | null
-    ): void {
-        setAccount((accountValue) => ({ ...accountValue, [key]: value }));
-    }
+    const handleAccountChange = (form: BaseAccount) => {
+        setAccount(form);
+    };
     const handleUseAccount = (checked: RadioChangeEvent) => {
         if (checked.target.value) {
             setAccount(userAccount);
@@ -95,100 +82,12 @@ export default function CreditApplication({
                                 <p> Use your contact information?</p>
                                 <Radio onChange={handleUseAccount}></Radio>
                             </div>
-                            <Form layout="vertical">
-                                <div className="flex flex-row gap-8">
-                                    <FormItem
-                                        label="First name"
-                                        required
-                                    >
-                                        <Input
-                                            value={account.first_name}
-                                            onChange={(e) =>
-                                                handleAccountChange(
-                                                    "first_name",
-                                                    e.target.value
-                                                )
-                                            }
-                                        ></Input>
-                                    </FormItem>
-                                    <FormItem
-                                        label="Last name"
-                                        required
-                                    >
-                                        <Input
-                                            value={account.last_name}
-                                            onChange={(e) =>
-                                                handleAccountChange(
-                                                    "last_name",
-                                                    e.target.value
-                                                )
-                                            }
-                                        ></Input>
-                                    </FormItem>
-                                </div>
-                                <div className="flex flex-row gap-8">
-                                    <FormItem
-                                        label="Email"
-                                        required
-                                    >
-                                        <Input
-                                            value={account.email}
-                                            onChange={(e) =>
-                                                handleAccountChange(
-                                                    "email",
-                                                    e.target.value
-                                                )
-                                            }
-                                        ></Input>
-                                    </FormItem>
-                                    <FormItem
-                                        label="Phone"
-                                        required
-                                    >
-                                        <InputNumber
-                                            addonBefore={
-                                                <Select
-                                                    style={{ width: 100 }}
-                                                    value={extension}
-                                                    onSelect={(e) =>
-                                                        setExtension(e)
-                                                    }
-                                                >
-                                                    <Option value="us">
-                                                        US +1
-                                                    </Option>
-                                                    <Option value="can">
-                                                        CAN +1
-                                                    </Option>
-                                                    <Option value="uk">
-                                                        UK +44
-                                                    </Option>
-                                                </Select>
-                                            }
-                                            value={account.phone}
-                                            onChange={(e) =>
-                                                handleAccountChange("phone", e)
-                                            }
-                                        ></InputNumber>
-                                    </FormItem>
-                                </div>
-                                <div className="flex flex-row gap-8">
-                                    <FormItem
-                                        label="Company/Franchise name"
-                                        required
-                                    >
-                                        <Input
-                                            value={account.franchise_name}
-                                            onChange={(e) =>
-                                                handleAccountChange(
-                                                    "franchise_name",
-                                                    e.target.value
-                                                )
-                                            }
-                                        ></Input>
-                                    </FormItem>
-                                </div>
-                            </Form>
+                            <div className="px-4">
+                                <ContactForm
+                                    formSubmit={handleAccountChange}
+                                    values={account}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

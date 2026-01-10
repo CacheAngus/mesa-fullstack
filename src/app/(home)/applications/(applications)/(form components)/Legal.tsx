@@ -2,7 +2,9 @@
 
 import { Entity } from "@/src/app/lib/Types";
 import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select } from "antd";
+import { Plus } from "@untitledui/icons";
+import { Form, Input, Select } from "antd";
+import { Button } from "@/src/components/base/buttons/button";
 import FormItem from "antd/es/form/FormItem";
 import React, { useState } from "react";
 
@@ -157,8 +159,9 @@ export default function LegalForm({
                 <Button
                     style={{ background: color, color: "white" }}
                     onClick={handleAddAnotherEntity}
+                    iconLeading={Plus}
                 >
-                    + Add legal entity
+                    Add legal entity
                 </Button>
             </div>
         </>
